@@ -12,7 +12,10 @@ import requests
 import pandas as pd
 import newsapi
 import os
+import string
 from collections import Counter
+
+#from newsapi import NewsApiClient
 
 # News infos API -------------------------------
 # api key holen von https://newsapi.org
@@ -24,14 +27,14 @@ one_month = date.today() - timedelta(days=25)
 
 # yesterday.strftime('%m%d%y')
 
-# get articles from news API +++++++++++++++
 def get_news():
     news_parameters = {
         "apiKey": news_api_key,
         "q": keyword,                               # Topic or keyword for search
         #"qInTitle": keyword,
         "language": "de",
-        'pageSize': 100,                            # number of articles
+        #"from": datetime.now(),
+        'pageSize': 10,                             # number of articles
         'sortBy': 'publishedAt', #  popularity,     # Sortieren nach Veröffentlichungsdatum
         'from': one_month, #                        # YYYY-MM-DD,  # start date: yesterday
         'to':  datetime.now(), #    one_month,      # YYYY-MM-DD # end date
@@ -65,27 +68,20 @@ def get_news():
     news_df = pd.DataFrame(article_list)
     return news_df
 
-# count words longer than 5 letters and find the 10 most common words +++++++
+
 def analyse_articles(news_df):
-    long_words = []
-    # get from each row of the dataframe the article text in column "description"
-    for article in news_df['description']:
-        if article is not None:
-            # split the sentences in words
-            article_split = article.split()
-            # append words longer than 5 to list and remove punctuation
-            #long_words = [word.strip('[]/.!,„“') for word in article_split if len(word) > 5]
-            for word in article_split:
-                clean_word = word.strip('[]/.!,„“')
-                if len(clean_word) > 5:
-                    long_words.append(clean_word)
-    word_counts = Counter(long_words)
+    all_text = ""
+    for article in news_df['articles']:
+        description = article.get('description')
+    if description is not None:
+        all_text += description + ' '
+    words = all_text.split()
+    filtered_words = [word for word in words if len(word) > 5]
+    word_counts = Counter(filtered_words)
     most_common_words = word_counts.most_common(10)
-    return most_common_words
+    print(most_common_words)
 
 
-#****************************************************
 
 news_df = get_news()
-most_common_words = analyse_articles(news_df)
-print(most_common_words)
+analyse_articles(news_df)
