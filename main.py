@@ -105,8 +105,8 @@ def plot_most_common_words(most_common_words, keyword_, time_period, page_size_,
     plt.bar(words, counts, color='skyblue')
     plt.xlabel('Words')
     plt.ylabel('Frequency')
-    plt.title(f'Top 10 Most Common Words\nKeyword {keyword_}, time period from {time_period} up to now, pagesize\n'
-              f' {page_size_}, sort by {sort_by_}')
+    plt.title(f'Top 10 Most Common Words\nKeyword {keyword_}, time period from {time_period} up to now,\n'
+              f'pagesize {page_size_}, sort by {sort_by_}')
     plt.xticks(rotation=45)
     plt.tight_layout()
     plt.show()
