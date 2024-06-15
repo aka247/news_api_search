@@ -7,6 +7,10 @@ Im folgenden Beispiel wird als Stichwort "Österreich" verwendet, eine detailier
 Infos: https://newsapi.org/docs/endpoints/everything
 '''
 
+#-------------------------------------
+# see jupyter notebook abgabe data science with plots
+#-------------------------------------
+
 from datetime import datetime, date, timedelta
 import requests
 import pandas as pd
@@ -20,7 +24,7 @@ NEWS_ENDPOINT = "https://newsapi.org/v2/everything"
 news_api_key = os.environ.get('NEWS_API_KEY')
 
 keyword = "Wien"
-one_month = date.today() - timedelta(days=25)
+one_month = date.today() - timedelta(days=30)
 
 # yesterday.strftime('%m%d%y')
 
@@ -31,7 +35,7 @@ def get_news():
         "q": keyword,                               # Topic or keyword for search
         #"qInTitle": keyword,
         "language": "de",
-        'pageSize': 100,                            # number of articles
+        'pageSize': 10,                            # number of articles
         'sortBy': 'publishedAt', #  popularity,     # Sortieren nach Veröffentlichungsdatum
         'from': one_month, #                        # YYYY-MM-DD,  # start date: yesterday
         'to':  datetime.now(), #    one_month,      # YYYY-MM-DD # end date
@@ -47,22 +51,11 @@ def get_news():
     # Parse the JSON response
     data = response.json()["articles"]
 
-    # Extract relevant information from the response
-    article_list = []
-    # for all articles
-    for article in data:
-        # add extracted information for one article to a dictionary
-        article_dict = {
-            'author': article['author'],
-            'title': article['title'],
-            'description': article['description'],
-            'publishedAt': article['publishedAt'],
-        }
-        # append dictionary of one article to a list of all articles
-        article_list.append(article_dict)
+    # convert to Pandas DataFrame
+    allData_df = pd.DataFrame(data)
+    # Extract relevant information
+    news_df = allData_df[["title", "description", "publishedAt"]]
 
-    # Create a pandas DataFrame with the extracted information
-    news_df = pd.DataFrame(article_list)
     return news_df
 
 # count words longer than 5 letters and find the 10 most common words +++++++
@@ -76,7 +69,7 @@ def analyse_articles(news_df):
             # append words longer than 5 to list and remove punctuation
             #long_words = [word.strip('[]/.!,„“') for word in article_split if len(word) > 5]
             for word in article_split:
-                clean_word = word.strip('[]/.!,„“')
+                clean_word = word.strip('[]/.!?,„“')
                 if len(clean_word) > 5:
                     long_words.append(clean_word)
     word_counts = Counter(long_words)
@@ -88,4 +81,5 @@ def analyse_articles(news_df):
 
 news_df = get_news()
 most_common_words = analyse_articles(news_df)
+print(most_common_words)
 print(most_common_words)
